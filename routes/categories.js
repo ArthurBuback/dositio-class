@@ -1,29 +1,29 @@
 /** @type{import('fastify').FastifyPluginAsync<>} */
 import createError from '@fastify/error';
-export default async function products(app, options) {
-    const InvalidProductError = createError('InvalidProductError', 'Produto Inválido.', 400);
+export default async function categories(app, options) {
+    const InvalidCategoryError = createError('InvalidCategoryError', 'Categoria Inválido.', 400);
 
-    const products = app.mongo.db.collection('products');
+    const categories = app.mongo.db.collection('categories');
 
-    app.get('/products', 
+    app.get('/categories', 
         {
             config: {
                 logMe: true
             }
         }, 
         async (request, reply) => {
-            return await products.find().toArray();
+            return await categories.find().toArray();
         }
     );
 
-    app.post('/products', {
+    app.post('/categories', {
         schema: {
             body: {
                 type: 'object',
                 properties: {
                     id: { type: 'integer' },
                     name: { type: 'string' },
-                    qtd: { type: 'integer' }
+                    //qtd: { type: 'integer' }
                 },
                 required: ['name', 'qtd']
             }
@@ -32,44 +32,44 @@ export default async function products(app, options) {
             requireAuthentication: true
         }
     }, async (request, reply) => {
-        let product = request.body;
+        let category = request.body;
         
-        await products.insertOne(product);
+        await categories.insertOne(category);
 
         return reply.code(201).send();
     });
 
-    app.get('/products/:id', async (request, reply) => {
+    app.get('/categories/:id', async (request, reply) => {
         let id =  request.params.id;
-        let product = await products.findOne({_id: new app.mongo.ObjectId(id)});
+        let category = await categories.findOne({_id: new app.mongo.ObjectId(id)});
         
-        return product;
+        return category;
     });
     
-    app.delete('/products/:id', {
+    app.delete('/categories/:id', {
         config: {
             requireAuthentication: true
         }
     }, async (request, reply) => {
         let id =  request.params.id;
         
-        await products.deleteOne({_id: new app.mongo.ObjectId(id)});
+        await categories.deleteOne({_id: new app.mongo.ObjectId(id)});
         
         return reply.code(204).send();;
     });
 
-    app.put('/products/:id', {
+    app.put('/categories/:id', {
         config: {
             requireAuthentication: true
         }
     }, async (request, reply) => {
         let id =  request.params.id;
-        let product = request.body;
+        let category = request.body;
         
-        await products.updateOne({_id: new app.mongo.ObjectId(id)}, {
+        await categories.updateOne({_id: new app.mongo.ObjectId(id)}, {
             $set: {
-                name: product.name,
-                qtd: product.qtd
+                name: category.name,
+                qtd: category.qtd
             }
         });
         
